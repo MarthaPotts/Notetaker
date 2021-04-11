@@ -1,4 +1,5 @@
 //dependencies
+const { notStrictEqual } = require('assert');
 const { SSL_OP_SINGLE_DH_USE } = require('constants');//VSC put this here. I have no clue. 
 
 const express = require('express'); 
@@ -16,7 +17,7 @@ app.use(express.json());
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-//data 
+//data fs/db.json
 
 //Routes 
 
@@ -43,36 +44,69 @@ app.get('/notes', (req, res) => {
 //API routes: 
 
 //GET /api/notes => readFile(db.json) => all saved notes as JSON:
-
-/*app.post('/api/notes', (req, res) => {
-    fs.readFile('db/db.json', 'utf8', (err, data) => {
-        if(err) {
-            console.error(err)
+app.get('/api/notes', (req, res) => {
+    fs.readFile('./db/db.json', 'utf8',(err, notes) => {
+        if(err) throw err; 
+    })
+    res.json(notes); 
+}); 
+app.get('/api/notes/:note', (req, res) => {
+    const singleNote = req.params.note; 
+    for (let i = 0; i > notes.length; i++) {
+        if(note === notes[i].routeName) {
+            return res.json(notes[i])
         }
-        data.push(req.body); 
-        fs.writeFile('db/db.json', data, () => {
-        res.end(); 
-    });
-});
-}); */
+    }
+    return res.json(false); 
+}); 
+
+// app.post('/api/notes', (req, res) => {
+//     fs.readFile('db/db.json', 'utf8', (err, data) => {
+//         if(err) {
+//             console.error(err)
+//         }
+//         data.push(req.body); 
+//         fs.writeFile('./db/db.json', data, () => {
+//         res.end(); 
+//     });
+// });
+// }); 
 //POST /api/notes => receive newNote to save on req.body, add to db.json file appendFile(), or writeFile(), .then()=>newNote to client
-//const dbNotes = {};
+
+//const dbNotes; 'undefined', stops script
 app.post('/api/notes', (req, res) =>{
     const newNote = req.body; 
     console.log(newNote); 
-    //newNote.routeName = newNote.title.replace(/\s+/g, '');//this is replacing the note, not adding to an object. 
+    //newNote.routeName = newNote.title.replace(/\s+/g, '');//this is replacing the note, not adding to an object/array. 
     newNote.id = uuidv4();
     //dbNotes.push(newNote); 
     //add note to db.json
-    fs.appendFile('./db/db.json', JSON.stringify(newNote), (err) => {
+    fs.appendFile('./db/db.json', JSON.stringify(newNote),(err) => {
         if(err) throw err; 
     }); 
     res.json(newNote); 
+}); 
+
+
+// `DELETE /api/notes/:id` should receive a query parameter containing the id of a note to delete. 
+//In order to delete a note, you'll need to read all notes from the `db.json` file, remove the note with the given `id` property, 
+//and then rewrite the notes to the `db.json` file.
+
+app.delete('/api/note/:note', (req, res) => {
+    fs.readFile('./db/db.json', 'utf8', (err, data) => {
+        //req.params.note?
+        //remove note that has this id (if object contains this id, delete object) array.remove()
+        const chosen = `${note.id}`; 
+       if()
+        
+    })
 })
-/*app.get('/api/notes/:note', (req, res) => {
-    const searched = req.params.note; 
-    console.log(searched); 
-})*/
+// function getId(id){ 
+//     return notes.id; 
+// }
+// for(let n = 0; n < notes.length; i++) {
+//     if(notes[i], ///)
+// }
 /*app.delete(`/api/notes/${id}`, (req, res) => {
     //read and rewrite?
     fs.readFile('/db/db.json', 'utf8', (err, data) =>{
