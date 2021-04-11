@@ -13,19 +13,26 @@ const PORT = process.env.PORT || 3000;
 //to handle data parsing 
 app.use(express.urlencoded({ extended: true })); 
 app.use(express.json()); 
+
 app.use(express.static(path.join(__dirname, 'public')));
 
-//data db.json id/title/text
+//data 
 
 //Routes 
 
-//GET /api/notes should receive a new note to save on req.body, add it to db.json, then return new note to client
-//give each note a unique id -> npm uuid -> devDependency
-//add DELETE route
-//DELETE /api/notes/:id, should receive query parameter containing id of note to delete; in order 
-//to delete the note, read all the notes from db.json, remove note with  given id prop, then rewrite notes to db.json
-//app.get('/', (req, res) => res.send('IT IS ALIVE!!!'));//correct this to context//this should be *, => index.html
+//The application should have a `db.json` file on the back end that will be used to store and retrieve notes using the `fs` module.
 
+//`GET /api/notes` should read the `db.json` file and return all saved notes as JSON.
+
+// `POST /api/notes` should receive a new note to save on the request body, add it to the `db.json` file, 
+//and then return the new note to the client. 
+//You'll need to find a way to give each note a unique id when it's saved (look into `npm` packages that could do this for you).
+
+// `DELETE /api/notes/:id` should receive a query parameter containing the id of a note to delete. 
+//In order to delete a note, you'll need to read all notes from the `db.json` file, remove the note with the given `id` property, 
+//and then rewrite the notes to the `db.json` file.
+
+// HTML routes: 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname + '/public/index.html')); 
 }); 
@@ -33,7 +40,10 @@ app.get('/', (req, res) => {
 app.get('/notes', (req, res) => {
     res.sendFile(path.join(__dirname + '/public/notes.html')); 
 });
- 
+//API routes: 
+
+//GET /api/notes => readFile(db.json) => all saved notes as JSON:
+
 /*app.post('/api/notes', (req, res) => {
     fs.readFile('db/db.json', 'utf8', (err, data) => {
         if(err) {
@@ -45,15 +55,16 @@ app.get('/notes', (req, res) => {
     });
 });
 }); */
-
+//POST /api/notes => receive newNote to save on req.body, add to db.json file appendFile(), or writeFile(), .then()=>newNote to client
+//const dbNotes = {};
 app.post('/api/notes', (req, res) =>{
     const newNote = req.body; 
     console.log(newNote); 
-    newNote.routeName = newNote.title.replace(/\s+/g, '');
+    //newNote.routeName = newNote.title.replace(/\s+/g, '');//this is replacing the note, not adding to an object. 
     newNote.id = uuidv4();
-    dbNotes.push(newNote); 
-
-    fs.writeFile('./db/db.json', JSON.stringify(dbNotes), (err) => {
+    //dbNotes.push(newNote); 
+    //add note to db.json
+    fs.appendFile('./db/db.json', JSON.stringify(newNote), (err) => {
         if(err) throw err; 
     }); 
     res.json(newNote); 
@@ -85,5 +96,4 @@ app.post('/api/notes', (req, res) =>{
 app.listen(PORT, (err) => {
     if(err) console.log(err);
     console.log(`Server is running on: ${PORT}`);
-})
-console.log(dbNotes); 
+}) 
